@@ -1,0 +1,6 @@
+**/*.exe
+**/*.hi
+**/*.o
+
+**/.stack-work
+**/stack.yaml.lock
