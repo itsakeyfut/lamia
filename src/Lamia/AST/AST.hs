@@ -1,104 +1,103 @@
 module Lamia.AST.AST
-    ( SQLStatement(..)
-    , SelectStatement(..)
-    , TableExpr(..)
-    , JoinType(..)
-    , JoinClause(..)
-    , Expression(..)
-    , BinaryOp(..)
-    , Literal(..)
-    , OrderByExpr(..)
-    , SortOrder(..)
-    ) where
+  ( SQLStatement(..)
+  , SelectStatement(..)
+  , TableExpr(..)
+  , JoinType(..)
+  , JoinClause(..)
+  , Expression(..)
+  , BinaryOp(..)
+  , Literal(..)
+  , OrderByExpr(..)
+  , SortOrder(..)
+  ) where
 
--- | SQL Statement
+-- | SQL statement types
 data SQLStatement
-    = SelectStmt SelectStatement
-    -- Placeholder
-    | InsertStmt
-    | UpdateStmt
-    | DeleteStmt
-    | CreateStmt
-    | AlterTableStmt
-    | DropTableStmt
-    deriving (Show, Eq)
+  = SelectStmt SelectStatement
+  | InsertStmt -- Placeholder for future extension
+  | UpdateStmt -- Placeholder for future extension
+  | DeleteStmt -- Placeholder for future extension
+  | CreateTableStmt -- Placeholder for future extension
+  | AlterTableStmt -- Placeholder for future extension
+  | DropTableStmt -- Placeholder for future extension
+  deriving (Show, Eq)
 
--- | Select Statement
+-- | SELECT statement structure
 data SelectStatement = SelectStatement
-    { selectDistinct :: Bool                -- ^ DISTINCT
-    , selectList     :: [(Expression, Maybe String)] -- ^ SELECT
-    , selectFrom     :: Maybe TableExpr     -- ^ FROM
-    , selectWhere    :: Maybe Expression    -- ^ WHERE
-    , selectGroupBy  :: [Expression]        -- ^ GROUP BY
-    , selectHaving   :: Maybe Expression    -- ^ HAVING
-    , selectOrderBy  :: [OrderByExpr]       -- ^ ORDER BY
-    , selectLimit    :: Maybe Integer       -- ^ LIMIT
-    , selectOffset   :: Maybe Integer       -- ^ OFFSET
-    } deriving (Show, Eq)
+  { selectDistinct :: Bool                -- ^ Whether DISTINCT keyword is used
+  , selectList     :: [(Expression, Maybe String)] -- ^ Selected columns (expression and alias)
+  , selectFrom     :: Maybe TableExpr     -- ^ FROM clause
+  , selectWhere    :: Maybe Expression    -- ^ WHERE clause
+  , selectGroupBy  :: [Expression]        -- ^ GROUP BY clause
+  , selectHaving   :: Maybe Expression    -- ^ HAVING clause
+  , selectOrderBy  :: [OrderByExpr]       -- ^ ORDER BY clause
+  , selectLimit    :: Maybe Integer       -- ^ LIMIT clause
+  , selectOffset   :: Maybe Integer       -- ^ OFFSET clause
+  } deriving (Show, Eq)
 
--- | Table Expression
+-- | Table expression
 data TableExpr
-    = TableName String (Maybe String)      -- ^ Table name and alias
-    | TableJoin JoinClause                 -- ^ JOIN
-    | TableSubQuery SelectStatement String -- ^ Subquery and alias
-    deriving (Show, Eq)
+  = TableName String (Maybe String)       -- ^ Table name and alias
+  | TableJoin JoinClause                  -- ^ JOIN operation
+  | TableSubQuery SelectStatement String  -- ^ Subquery and alias
+  deriving (Show, Eq)
 
--- | Join Type
+-- | JOIN types
 data JoinType
-    = InnerJoin
-    | LeftJoin
-    | RightJoin
-    | FullJoin
-    | CrossJoin
-    deriving (Show, Eq)
+  = InnerJoin
+  | LeftJoin
+  | RightJoin
+  | FullJoin
+  | CrossJoin
+  deriving (Show, Eq)
 
--- | Join Clause
+-- | JOIN clause
 data JoinClause = JoinClause
-    { joinLeft  :: TableExpr  -- ^ Left table
-    , joinType  :: JoinType   -- ^ Join type
-    , joinRight :: TableExpr  -- ^ Right table
-    , joinOn    :: Expression -- ^ ON condition
-    } deriving (Show, Eq)
+  { joinLeft  :: TableExpr    -- ^ Left table expression
+  , joinType  :: JoinType     -- ^ JOIN type
+  , joinRight :: TableExpr    -- ^ Right table expression
+  , joinOn    :: Expression   -- ^ ON condition
+  } deriving (Show, Eq)
 
 -- | Expression
 data Expression
-    = BinaryExpr BinaryOp Expression Expression              -- ^ Binary expression
-    | UnaryExpr String Expression                            -- ^ Unary expression
-    | LiteralExpr Literal                                    -- ^ Literal value
-    | ColumnRef String (Maybe String)                        -- ^ Column reference (table, column)
-    | FunctionCall String [Expression]                       -- ^ Function call
-    | CaseExpr [(Expression, Expression)] (Maybe Expression) -- ^ CASE expression
-    | ExistsExpr SelectStatement                             -- ^ EXISTS subquery
-    | SubQueryExpr SelectStatement                           -- ^ Subquery
-    deriving (Show, Eq)
+  = BinaryExpr BinaryOp Expression Expression  -- ^ Binary operation
+  | UnaryExpr String Expression                -- ^ Unary operation
+  | LiteralExpr Literal                        -- ^ Literal
+  | ColumnRef String (Maybe String)            -- ^ Column reference (column name and table name)
+  | FunctionCall String [Expression]           -- ^ Function call
+  | CaseExpr [(Expression, Expression)] (Maybe Expression) -- ^ CASE expression
+  | ExistsExpr SelectStatement                 -- ^ EXISTS expression
+  | SubQueryExpr SelectStatement               -- ^ Subquery
+  deriving (Show, Eq)
 
--- | Binary Operator
+-- | Binary operators
 data BinaryOp
-    = Add | Or -- ^ Logical
-    | Equal | NotEqual -- ^ Euality
-    | LessThan | GreaterThan -- ^ Comparison
-    | LessEqual | GreaterEqual -- ^ Comparison
-    | Plus | Minus | Multiply | Divide -- ^ Arithmetic
-    | Like | NotLike -- ^ Like
-    | In | NotIn -- ^ In
-    deriving (Show, Eq)
+  = And | Or                          -- ^ Logical operators
+  | Equal | NotEqual                  -- ^ Equality operators
+  | LessThan | GreaterThan            -- ^ Comparison operators
+  | LessEqual | GreaterEqual          -- ^ Comparison operators
+  | Plus | Minus | Multiply | Divide  -- ^ Arithmetic operators
+  | Like | NotLike                    -- ^ LIKE operators
+  | In | NotIn                        -- ^ IN operators
+  deriving (Show, Eq)
 
--- | Literal Value
+-- | Literal values
 data Literal
-    = StringLit String  -- ^ String literal
-    | NumericLit String -- ^ Numeric literal
-    | BoolLit Bool      -- ^ Boolean literal
-    | NullLit           -- ^ NULL literal
-    deriving (Show, Eq)
+  = StringLit String    -- ^ String literal
+  | NumericLit String   -- ^ Numeric literal
+  | BoolLit Bool        -- ^ Boolean literal
+  | NullLit             -- ^ NULL value
+  deriving (Show, Eq)
 
--- | Order By Expression
+-- | ORDER BY clause element
 data OrderByExpr = OrderByExpr
-    { orderExpr :: Expression -- ^ ORDER BY
-    , orderDir  :: SortOrder  -- ^ Sort direction
-    } deriving (Show, Eq)
+  { orderExpr  :: Expression  -- ^ Sorting expression
+  , orderDir   :: SortOrder   -- ^ Sorting direction
+  } deriving (Show, Eq)
 
--- | Sort Order
+-- | Sorting direction
 data SortOrder
-    = Ascending  -- ^ ASC
-    | Descending -- ^ DESC
-    deriving (Show, Eq)
+  = Ascending   -- ^ Ascending order
+  | Descending  -- ^ Descending order
+  deriving (Show, Eq)
