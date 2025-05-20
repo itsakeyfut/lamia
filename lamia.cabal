@@ -8,19 +8,31 @@ homepage:            https://github.com/itsakeyfut/lamia#readme
 license:             BSD-3-Clause
 license-file:        LICENSE
 author:              itsakeyfut
-maintainer:          example@example.com
+-- maintainer:          example@example.com
 copyright:           2025 itsakeyfut
-category:            Web
+category:            SQL
 build-type:          Simple
 extra-source-files:  README.md
                      CHANGELOG.md
 
-executable lamia
+library
   hs-source-dirs:      src
-  main-is:             Main.hs
+  exposed-modules:     Lamia
+                     , Lamia.AST
+                     , Lamia.AST.AST
+                     , Lamia.Lexer
+                     , Lamia.Lexer.Token
+                     , Lamia.Lexer.Lexer
+                     , Lamia.Parser
+                     , Lamia.Parser.Parser
+                     , Lamia.Evaluator
+                     , Lamia.Evaluator.Evaluator
   default-language:    Haskell2010
-  build-depends:       base >= 4.7 && < 5,
-    parsec >= 3.1
+  build-depends:       base >= 4.7 && < 5
+                     , parsec >= 3.1
+                     , containers
+                     , mtl
+                     , text
   ghc-options:         -Wall
                        -Wcompat
                        -Widentities
@@ -30,4 +42,24 @@ executable lamia
                        -Wmissing-home-modules
                        -Wpartial-fields
                        -Wredundant-constraints
+                       -fno-warn-name-shadowing
+  default-extensions:  UnicodeSyntax
 
+executable lamia
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , lamia
+                     , parsec >= 3.1
+  ghc-options:         -Wall
+                       -Wcompat
+                       -Widentities
+                       -Wincomplete-record-updates
+                       -Wincomplete-uni-patterns
+                       -Wmissing-export-lists
+                       -Wmissing-home-modules
+                       -Wpartial-fields
+                       -Wredundant-constraints
+                       -fno-warn-name-shadowing
+  default-extensions:  UnicodeSyntax
